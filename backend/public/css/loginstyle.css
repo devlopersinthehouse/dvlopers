@@ -1,0 +1,509 @@
+/* =========================
+   RESET & BASE
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.auth-page {
+    min-height: 100vh;
+    font-family: 'Poppins', system-ui, sans-serif;
+    color: #f9fafb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.auth-page {
+    min-height: 100vh;
+    background-color: #050505;
+
+    /* grid lines */
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px),
+        linear-gradient(90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px);
+
+    background-size: 60px 60px;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.auth-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at center,
+            rgba(0, 255, 200, 0.05),
+            transparent 70%);
+    pointer-events: none;
+}
+
+/* =========================
+   FLOATING DOT BACKGROUND
+========================= */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+@keyframes floatDots {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-30px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   AUTH CARD
+========================= */
+
+.auth-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    padding: 34px 30px;
+    background: rgba(11, 11, 11, 0.75);
+    backdrop-filter: blur(5px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.158);
+    box-shadow:
+        0 25px 50px rgba(0, 0, 0, .45),
+        inset 0 0 0 1px rgba(255, 255, 255, .03);
+    animation: cardFadeUp .9s ease forwards;
+}
+
+
+
+/* =========================
+   TITLE
+========================= */
+
+.auth-card h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #fff, #9ae6b4);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   TABS
+========================= */
+
+.tabs {
+    display: flex;
+    margin-bottom: 22px;
+    background: rgba(255, 255, 255, .05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #9ca3af;
+    transition: .3s;
+}
+
+.tab.active {
+    background: rgba(74, 222, 128, .15);
+    color: #4ade80;
+}
+
+/* =========================
+   FORM GROUPS
+========================= */
+
+.form-group {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family:'Poppins', system-ui, sans-serif;
+    background: rgba(253, 253, 253, 0.041);
+    border: 1px solid rgba(255, 255, 255, .08);
+    color: #f9fafb;
+    font-size: 14px;
+    outline: none;
+    transition: .3s;
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.form-group input:focus {
+    border-color: rgba(74, 222, 128, .6);
+    box-shadow:
+        0 0 0 2px rgba(74, 222, 128, .18),
+        0 0 18px rgba(74, 222, 128, .25);
+}
+
+/* =========================
+   PASSWORD TOGGLE
+========================= */
+
+.password-group .show-pass {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    cursor: pointer;
+    color: #7dd3fc;
+    user-select: none;
+}
+
+/* Phone Input with Indian Flag – Premium Look */
+.input-with-flag {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.input-with-flag .flag {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.input-with-flag input {
+    width: 100%;
+    padding: 12px 15px 12px 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.input-with-flag input:focus {
+    outline: none;
+    border-color: #22c55e;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+/* Phone Validation Styles */
+#phoneGroup.valid .input-with-flag input {
+    border-color: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+}
+
+#phoneGroup.invalid .input-with-flag input {
+    border-color: #f87171;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+#phoneGroup .input-with-flag input:focus {
+    outline: none;
+}
+/* =========================
+   LINKS
+========================= */
+
+.link-text {
+    text-align: center;
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 14px;
+}
+
+.link-text a {
+    color: #7dd3fc;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.link-text a:hover {
+    color: #38bdf8;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #04130a;
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    box-shadow: 0 12px 30px rgba(34, 197, 94, .35);
+    transition: .25s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* =========================
+   LOADER
+========================= */
+
+.loader {
+    width: 26px;
+    height: 26px;
+    border: 3px solid rgba(255, 255, 255, .2);
+    border-top-color: #4ade80;
+    border-radius: 50%;
+    margin: 12px auto;
+    display: none;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+#loginMessage,
+#registerMessage,
+#forgotMessage {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* =========================
+   SHAKE ERROR
+========================= */
+
+.auth-card.shake {
+    animation: shake .45s ease;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-6px);
+    }
+
+    50% {
+        transform: translateX(6px);
+    }
+
+    75% {
+        transform: translateX(-4px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* =========================
+   CARD ENTRY
+========================= */
+
+@keyframes cardFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:480px) {
+    .auth-card {
+        padding: 28px 22px;
+    }
+}
+
+/* =====================
+   TABLET
+===================== */
+@media (min-width: 768px) {
+    .auth-card {
+        max-width: 440px;
+    }
+}
+
+/* =====================
+   LARGE SCREENS
+===================== */
+@media (min-width: 1200px) {
+    .auth-card {
+        max-width: 460px;
+    }
+}
+
+/* =========================
+   FLOATING TECH ICONS
+========================= */
+
+.tech-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.tech-icon {
+    position: absolute;
+    font-size: 48px;
+    opacity: 0.08;
+    filter: blur(0.2px);
+    animation: techFloat linear infinite;
+    transition:
+        opacity 0.4s ease,
+        filter 0.4s ease,
+        text-shadow 0.4s ease,
+        color 0.4s ease;
+}
+
+/* Floating motion */
+@keyframes techFloat {
+    0% {
+        transform: translateY(120vh) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-140vh) rotate(360deg);
+    }
+}
+
+/* Glow on hover proximity */
+.tech-icon.active {
+    opacity: 0.9;
+    filter: blur(0);
+}
+
+/* ===== Language Glow Colors ===== */
+
+.glow-html.active {
+    color: #ff6d00;
+    text-shadow: 0 0 25px #ff6d00;
+}
+
+.glow-css.active {
+    color: #00b0ff;
+    text-shadow: 0 0 25px #00b0ff;
+}
+
+.glow-js.active {
+    color: #ffd600;
+    text-shadow: 0 0 25px #ffd600;
+}
+
+.glow-react.active {
+    color: #00e5ff;
+    text-shadow: 0 0 25px #00e5ff;
+}
+
+.glow-node.active {
+    color: #69f0ae;
+    text-shadow: 0 0 25px #69f0ae;
+}
+
+.glow-python.active {
+    color: #82b1ff;
+    text-shadow: 0 0 25px #82b1ff;
+}
+
+.glow-github.active {
+    color: #ffffff;
+    text-shadow: 0 0 22px #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tech-icon {
+        font-size: 34px;
+    }
+}
+
+/* Message styling */
+.message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.message.success {
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.message.error {
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+/* Loader */
+.loader {
+    display: none;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #764ba2;
+    border-radius: 50%;
+    margin: 15px auto;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

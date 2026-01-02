@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Studio | Websites & Apps on Order</title>
+    <meta
+      name="description"
+      content="Modern developer studio where users can order websites and apps with AI assistance"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/indexstyle.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <!-- Background Layers -->
+    <div class="bg-grid"></div>
+    <canvas id="bgDots"></canvas>
+    <div class="tech-bg"></div>
+    <div class="page-wrapper">
+      <!-- TOP NAVBAR -->
+      <nav class="top-nav">
+        <!-- LEFT LOGO -->
+        <div class="nav-logo">
+          <a href="index.html">
+            <img src="assets/developers_logo.jpeg" alt="Developers Logo" />
+            <span>DEVELOPERS</span>
+          </a>
+        </div>
+
+        <!-- CENTER GLASS NAV (DESKTOP ONLY) -->
+        <div class="nav-center">
+          <a href="#" class="nav-link">Languages</a>
+          <a href="#" class="nav-link">About</a>
+          <a href="#features" class="nav-link active">Features</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+        </div>
+
+        <!-- RIGHT ACTION (AUTH SECTION) -->
+        <div class="nav-action" id="authSection">
+          <!-- Dynamically populated: Login button OR Profile circle -->
+          <a href="login.html" class="login-btn">Log In/Register</a>
+        </div>
+
+        <!-- HAMBURGER (MOBILE) -->
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+      </nav>
+
+      <!-- SIDE NAV (MOBILE DRAWER) -->
+      <div class="side-nav" id="sideNav">
+        <span class="close-btn" onclick="closeMenu()">×</span>
+
+        <a href="#">Languages</a>
+        <a href="#">About</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+
+        <!-- Mobile auth section -->
+        <div id="mobileAuthSection">
+          <a href="login.html" class="login-btn show" id="loginBtn"
+            >Log In/Register</a
+          >
+        </div>
+      </div>
+
+      <!-- HERO SECTION WITH VIDEO -->
+      <header>
+        <!-- LEFT SIDE - TEXT CONTENT -->
+        <div class="hero-content">
+          <h1 class="hero-title">
+            Build Your
+            <br />
+            <span class="typing-wrapper">
+              <span id="typing-text"></span>
+              <span class="cursor">|</span>
+            </span>
+          </h1>
+
+          <p class="hero-subtitle">
+            We design, build & scale AI-powered products and modern web
+            platforms for startups and growing businesses.
+          </p>
+
+          <button class="ai-btn">
+            <div class="flux-ring"></div>
+            <a href="#pricing" class="span">Get Started Now →</a>
+          </button>
+        </div>
+
+        <!-- RIGHT SIDE - VIDEO -->
+        <div class="video-wrapper">
+          <div class="neon-strip top-right"></div>
+          <div class="neon-strip right-side"></div>
+
+          <div class="video-card">
+            <div class="video-container">
+              <video autoplay muted loop playsinline>
+                <source
+                  src="assets/Video_Generation_Request_And_Response.mp4"
+                  type="video/mp4"
+                />
+              </video>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- SERVICES -->
+      <section>
+        <div class="title">
+          <h2>What We Build</h2>
+          <p>Developer-focused solutions</p>
+        </div>
+
+        <div class="services">
+          <div class="service-card">
+            <h3>Websites</h3>
+            <p>Fast, modern & responsive</p>
+          </div>
+          <div class="service-card">
+            <h3>Web Apps</h3>
+            <p>SaaS & dashboards</p>
+          </div>
+          <div class="service-card">
+            <h3>Mobile Apps</h3>
+            <p>Android & cross-platform</p>
+          </div>
+          <div class="service-card">
+            <h3>Artificial Intelligence</h3>
+            <p>AI-powered solutions & automation</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEVELOPER ASSISTANT SECTION -->
+      <section id="assistant">
+        <div class="title">
+          <h2>Developer Assistant</h2>
+          <p>Interactive support for your project (Coming Soon)</p>
+        </div>
+
+        <div class="bot">
+          <div class="bot-header">🤖 Developer Studio Assistant</div>
+
+          <p class="bot-desc">
+            This assistant will help you understand pricing, tech stack,
+            features and guide you while placing an order.
+          </p>
+
+          <div class="chat-preview">
+            <div class="chat-label">Assistant UI Preview</div>
+
+            <div class="chat-message">
+              👋 Hi! I will assist you with your project soon.
+            </div>
+
+            <input type="text" disabled placeholder="Chat coming soon..." />
+          </div>
+        </div>
+      </section>
+
+      <section class="stack-wrapper" id="features">
+        <!-- SLIDE 1 -->
+        <div class="stack-card">
+          <div class="stack-inner">
+            <div class="stack-content">
+              <h2>Easy To Connect</h2>
+              <p>
+                Reach out to our developers directly for orders and expert
+                advice.
+              </p>
+
+              <div class="pricing-grid">
+                <div class="price-box">
+                  <h4>Support</h4>
+                  <span>24/7 Available</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-video">
+              <video autoplay muted loop playsinline>
+                <source src="connect-demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2 -->
+        <div class="stack-card">
+          <div class="stack-inner">
+            <div class="stack-content">
+              <h2>Services faster than others</h2>
+              <p>We offer up-to-time order completion with best performance</p>
+
+              <div class="pricing-grid">
+                <div class="price-box">
+                  <h4>Speed Advantage</h4>
+                  <span>99.9% at time</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-video">
+              <video autoplay muted loop playsinline>
+                <source src="speed-demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3 -->
+        <div class="stack-card">
+          <div class="stack-inner">
+            <div class="stack-content">
+              <h2>Customization Options</h2>
+              <p>Various customization options for every user.</p>
+
+              <div class="pricing-grid">
+                <div class="price-box">
+                  <h4>Flexible Solutions</h4>
+                  <span>Tailored to your needs</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-video">
+              <video autoplay muted loop playsinline>
+                <source src="customization-demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4 -->
+        <div class="stack-card">
+          <div class="stack-inner">
+            <div class="stack-content">
+              <h2>Affordable Prices</h2>
+              <p>Competitive pricing for all our services.</p>
+
+              <div class="pricing-grid">
+                <div class="price-box">
+                  <h4>Value for Money</h4>
+                  <span>Quality services at reasonable rates</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-video">
+              <video autoplay muted loop playsinline>
+                <source src="affordable-demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRICING CALCULATOR -->
+      <section id="pricing">
+        <div class="title">
+          <h2>Pricing Calculator</h2>
+          <p>Estimate your project cost</p>
+        </div>
+
+        <div class="pricing-box">
+          <label>Number of Pages</label>
+          <input type="number" id="pages" value="1" min="1" />
+
+          <label>Project Type</label>
+          <select id="projectType">
+            <option value="3000">Static Website</option>
+            <option value="6000">Dynamic Website</option>
+            <option value="12000">Web App</option>
+            <option value="18000">Mobile App</option>
+          </select>
+
+          <label>Tech Stack</label>
+          <select id="tech">
+            <option value="1">HTML / CSS / JS</option>
+            <option value="1.4">React / Next.js</option>
+            <option value="1.7">Full Stack</option>
+          </select>
+
+          <div class="price-output">
+            Estimated Price: ₹<span id="price">0</span>
+          </div>
+
+          <button class="btn" onclick="openOrder()">Order Now</button>
+        </div>
+      </section>
+
+      <!-- ORDER POPUP -->
+      <div class="modal" id="orderModal">
+        <div class="modal-box">
+          <div class="close-btn" onclick="closeOrder()">×</div>
+
+          <div class="title">
+            <h2>Place Your Order</h2>
+            <p>Tell us about your project</p>
+          </div>
+
+          <p style="margin-bottom: 12px; color: #aaa">
+            Estimated Price: ₹<strong style="color: #4ade80" id="finalPrice"
+              >0</strong
+            >
+          </p>
+
+          <input
+            type="text"
+            id="orderName"
+            placeholder="Your Name"
+            style="
+              width: 100%;
+              padding: 10px;
+              margin: 8px 0;
+              border-radius: 8px;
+              border: none;
+            "
+          />
+
+          <input
+            type="email"
+            id="orderEmail"
+            placeholder="Email"
+            style="
+              width: 100%;
+              padding: 10px;
+              margin: 8px 0;
+              border-radius: 8px;
+              border: none;
+            "
+          />
+
+          <textarea
+            id="orderDetails"
+            placeholder="Project details"
+            rows="4"
+            style="
+              width: 100%;
+              padding: 10px;
+              margin: 8px 0;
+              border-radius: 8px;
+              border: none;
+            "
+          ></textarea>
+          <!-- File Upload Section (Optional) -->
+          <div class="form-group">
+            <label
+              style="
+                color: #aaa;
+                font-size: 14px;
+                margin-bottom: 8px;
+                display: block;
+              "
+              >Attach Project Files (Optional)</label
+            >
+            <input
+              type="file"
+              id="orderFiles"
+              multiple
+              accept="*/*"
+              style="
+                width: 100%;
+                padding: 12px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                color: #fff;
+                font-size: 15px;
+              "
+            />
+            <small style="color: #888; display: block; margin-top: 8px">
+              You can upload images, documents, zip files, code, screenshots
+              etc. (Max 20MB per file)
+            </small>
+
+            <!-- Upload Progress -->
+            <div id="uploadProgress" style="margin-top: 15px; display: none">
+              <div
+                style="
+                  height: 6px;
+                  background: rgba(255, 255, 255, 0.1);
+                  border-radius: 3px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  id="progressFill"
+                  style="
+                    height: 100%;
+                    width: 0%;
+                    background: #22c55e;
+                    transition: width 0.3s;
+                  "
+                ></div>
+              </div>
+              <small
+                id="progressText"
+                style="color: #aaa; margin-top: 5px; display: block"
+                >Uploading files...</small
+              >
+            </div>
+
+            <!-- Uploaded Files List -->
+            <div id="uploadedFilesList" style="margin-top: 15px"></div>
+          </div>
+          <button class="btn" id="submitOrderBtn" style="width: 100%">
+            Submit Order
+          </button>
+          <div
+            id="orderMessage"
+            style="margin-top: 15px; text-align: center"
+          ></div>
+        </div>
+      </div>
+
+      <!-- FAQ SECTION -->
+      <section id="faq">
+        <div class="title">
+          <h2>Frequently Asked Questions</h2>
+          <p>Clear answers before you start your project</p>
+        </div>
+
+        <div class="faq-wrapper">
+          <div class="faq-item">
+            <div class="faq-q">
+              <span>How long does it take to build a website?</span>
+              <i class="faq-icon fa-solid fa-plus"></i>
+            </div>
+            <div class="faq-a">
+              Simple websites take 3–5 days. Advanced apps may take 2–4 weeks.
+              The timeline depends on complexity, features, and customization
+              requirements. We provide detailed timelines during consultation.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span>What technologies do you use?</span>
+              <i class="faq-icon fa-solid fa-plus"></i>
+            </div>
+            <div class="faq-a">
+              HTML, CSS, JavaScript, React, Next.js, Node.js and modern stacks.
+              We also work with TypeScript, Tailwind CSS, MongoDB, PostgreSQL,
+              and cloud platforms. Our tech choices depend on your project needs
+              and scalability requirements.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span>Is my website mobile responsive?</span>
+              <i class="faq-icon fa-solid fa-plus"></i>
+            </div>
+            <div class="faq-a">
+              Yes. Every project is optimized for mobile, tablet and desktop. We
+              follow mobile-first design principles and test across all devices
+              to ensure perfect user experience everywhere.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span>Can I request changes after delivery?</span>
+              <i class="faq-icon fa-solid fa-plus"></i>
+            </div>
+            <div class="faq-a">
+              Minor revisions are free within 30 days of delivery. Major updates
+              and feature additions may affect pricing and require additional
+              development time. We're happy to discuss revisions during the
+              handover phase.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span>How do I place an order?</span>
+              <i class="faq-icon fa-solid fa-plus"></i>
+            </div>
+            <div class="faq-a">
+              Use the pricing calculator to estimate your project cost, click
+              "Order Now", and fill in your project details. Our team will
+              review your requirements and contact you within 24 hours to
+              confirm the timeline and next steps.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT SECTION -->
+      <section class="connect-section">
+        <h2 class="connect-title">Connect With Us</h2>
+
+        <div class="connect-icons">
+          <a
+            href="mailto:hello@developers.com"
+            class="icon email"
+            aria-label="Email"
+          >
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+
+          <a
+            href="https://wa.me/919876543210"
+            target="_blank"
+            class="icon whatsapp"
+            aria-label="WhatsApp"
+          >
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+
+          <a
+            href="https://www.linkedin.com/company/your-company"
+            target="_blank"
+            class="icon linkedin"
+            aria-label="LinkedIn"
+          >
+            <i class="fa-brands fa-linkedin-in"></i>
+          </a>
+
+          <a
+            href="https://github.com/yourusername"
+            target="_blank"
+            class="icon github"
+            aria-label="GitHub"
+          >
+            <i class="fa-brands fa-github"></i>
+          </a>
+
+          <a
+            href="https://www.instagram.com/yourusername"
+            target="_blank"
+            class="icon instagram"
+            aria-label="Instagram"
+          >
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+
+          <a
+            href="https://x.com/yourusername"
+            target="_blank"
+            class="icon twitter"
+            aria-label="X"
+          >
+            <i class="fa-brands fa-x-twitter"></i>
+          </a>
+        </div>
+      </section>
+
+      <footer>© 2025 Developer Studio | Developer-first platform</footer>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+      <div class="loading-content">
+        <div class="loading-logo">
+          <h1 class="loading-brand">DEVELOPERS</h1>
+          <div class="loading-tagline">Building Your Digital Future</div>
+        </div>
+        <div class="loading-bar">
+          <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+        <div class="loading-text" id="loadingText">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress-bar" id="scrollProgress"></div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script src="js/globaljs.js"></script>
+    <script src="js/indexjs.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/ui-features.js"></script>
+    <!-- NEW FILE -->
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-card">
+        <h2>Verify Your Phone</h2>
+        <p>Enter the 6-digit OTP sent to your number</p>
+
+        <input type="text" id="otpInput" placeholder="123456" maxlength="6">
+
+        <button class="btn" onclick="verifyOtp()">Verify OTP</button>
+        <div id="otpMessage"></div>
+    </div>
+
+    <script>
+        async function verifyOtp() {
+            const otp = document.getElementById('otpInput').value;
+            const phone = localStorage.getItem('pendingPhone');
+            const userData = JSON.parse(localStorage.getItem('pendingUserData'));
+
+            const res = await fetch('/api/otp/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, otp })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                // Now register user
+                const regRes = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...userData, phone })
+                });
+
+                if (regRes.ok) {
+                    window.location.href = '/';
+                }
+            } else {
+                document.getElementById('otpMessage').innerHTML = `<p style="color:red;">${data.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

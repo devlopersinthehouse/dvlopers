@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email Verification</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card">
+    <h2>Email Verification</h2>
+    <p>Processing your verification...</p>
+    <div class="loader" style="display:block;margin:20px auto;"></div>
+  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      window.location.href = `/api/auth/verify-email?token=${token}`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Developer Studio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/indexstyle.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    <!-- Background -->
+    <div class="bg-grid"></div>
+    <div class="scroll-progress-bar" id="scrollProgress"></div>
+
+    <!-- TOP NAVBAR -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/" class="logo-link">DEVELOPERS</a>
+            </div>
+            <div class="nav-auth" id="authSection">
+                <!-- Manual admin info -->
+                <div class="profile-wrapper">
+                    <div class="profile-circle" style="background:linear-gradient(135deg,#00f2a6,#00d084);width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#000;font-weight:700;font-size:18px;border-radius:50%;box-shadow:0 4px 20px rgba(0,242,166,0.4);">
+                        A
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown" style="display:none;">
+                        <div class="profile-info">
+                            <p class="profile-name">Admin</p>
+                            <p class="profile-email">admin@studio.com</p>
+                        </div>
+                        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0;">
+                        <button class="dropdown-btn" onclick="handleLogout()">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-menu">
+                <a href="#users" class="menu-item active">
+                    <i class="fa-solid fa-users"></i>
+                    <span>All Users</span>
+                </a>
+                <a href="/" class="menu-item">
+                    <i class="fa-solid fa-home"></i>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="logout-sidebar-btn" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="section-header">
+                <h1>Admin Dashboard</h1>
+                <p>Manage all registered users</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="orders-stats" style="margin-bottom:30px;">
+                <div class="stat-card">
+                    <i class="fa-solid fa-users"></i>
+                    <div>
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <div>
+                        <h3 id="verifiedUsers">0</h3>
+                        <p>Email Verified</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users List -->
+            <div class="orders-list" id="usersList">
+                <div class="loader-container">
+                    <div class="loader"></div>
+                    <p>Loading users...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Only toast.js (for showToast) -->
+    <script src="js/toast.js"></script>
+
+    <script>
+        // Profile dropdown toggle
+        document.querySelector('.profile-circle').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('profileDropdown').classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('profileDropdown').classList.remove('show');
+        });
+
+        // Logout
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+                    .then(() => {
+                        showToast('Logged out successfully!', 'success');
+                        setTimeout(() => window.location.href = '/', 1000);
+                    });
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users', { credentials: 'include' });
+                
+                if (res.status === 403 || res.status === 401) {
+                    showToast('Access denied. Redirecting to home...', 'error');
+                    setTimeout(() => window.location.href = '/', 2000);
+                    return;
+                }
+
+                if (!res.ok) {
+                    showToast('Error loading users', 'error');
+                    return;
+                }
+
+                const users = await res.json();
+
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('verifiedUsers').textContent = users.filter(u => u.isVerified).length;
+
+                if (users.length === 0) {
+                    document.getElementById('usersList').innerHTML = `
+                        <div class="no-data">
+                            <i class="fa-solid fa-users-slash"></i>
+                            <h3>No Users Yet</h3>
+                            <p>Users will appear here once they register.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                document.getElementById('usersList').innerHTML = users.map(user => `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">${user.name}</div>
+                                <small style="color:#888;">${user.email}</small><br>
+                                <small style="color:#888;">${user.phone || 'No phone'}</small>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="order-status ${user.isVerified ? 'status-completed' : 'status-pending'}">
+                                    ${user.isVerified ? 'Verified' : 'Not Verified'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
+                            <button onclick="toggleVerify('${user._id}')" class="btn" style="padding:10px 20px;">
+                                ${user.isVerified ? 'Unverify' : 'Verify Email'}
+                            </button>
+                            <button onclick="deleteUser('${user._id}', '${user.name}')" class="btn-danger" style="padding:10px 20px;">
+                                Delete User
+                            </button>
+                        </div>
+
+                        <small style="color:#666;margin-top:15px;display:block;">
+                            Joined: ${new Date(user.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </small>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                showToast('Network error while loading users', 'error');
+            }
+        }
+
+        async function toggleVerify(userId) {
+            if (!confirm('Toggle email verification status?')) return;
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/toggle-verify`, {
+                    method: 'PUT',
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    showToast('Status updated', 'success');
+                    loadUsers();
+                } else {
+                    showToast('Failed to update', 'error');
+                }
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Permanently delete "${userName}"? This cannot be undone.`)) return;
+            try {
+                const res = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    showToast('User deleted', 'success');
+                    loadUsers();
+                } else {
+                    showToast('Failed to delete', 'error');
+                }
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Load users on page load
+        loadUsers();
+    </script>
+</body>
+</html>
