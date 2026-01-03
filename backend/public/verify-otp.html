@@ -1,48 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Verify OTP</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Email Verification</title>
+    <link rel="stylesheet" href="css/loginstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .otp-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .otp-icon {
+            font-size: 64px;
+            color: #764ba2;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .otp-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .otp-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .otp-email {
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .otp-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .otp-digit {
+            width: 50px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .otp-digit:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .otp-digit.filled {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .timer-text {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .timer-value {
+            font-weight: 700;
+            color: #764ba2;
+        }
+
+        .resend-btn {
+            background: transparent;
+            color: #764ba2;
+            border: 2px solid #764ba2;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .resend-btn:hover:not(:disabled) {
+            background: #764ba2;
+            color: white;
+        }
+
+        .resend-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #764ba2;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body class="auth-page">
+    <div class="tech-bg"></div>
+
     <div class="auth-card">
-        <h2>Verify Your Phone</h2>
-        <p>Enter the 6-digit OTP sent to your number</p>
+        <div class="otp-container">
+            <div class="otp-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
 
-        <input type="text" id="otpInput" placeholder="123456" maxlength="6">
+            <h2 class="otp-title">Verify Your Email</h2>
+            <p class="otp-subtitle">
+                We've sent a 6-digit OTP to<br>
+                <span class="otp-email" id="displayEmail">your email</span>
+            </p>
 
-        <button class="btn" onclick="verifyOtp()">Verify OTP</button>
-        <div id="otpMessage"></div>
+            <div class="otp-input-group">
+                <input type="text" class="otp-digit" maxlength="1" id="otp1" />
+                <input type="text" class="otp-digit" maxlength="1" id="otp2" />
+                <input type="text" class="otp-digit" maxlength="1" id="otp3" />
+                <input type="text" class="otp-digit" maxlength="1" id="otp4" />
+                <input type="text" class="otp-digit" maxlength="1" id="otp5" />
+                <input type="text" class="otp-digit" maxlength="1" id="otp6" />
+            </div>
+
+            <div class="timer-text" id="timerText">
+                OTP expires in <span class="timer-value" id="timer">10:00</span>
+            </div>
+
+            <button class="submit-btn" id="verifyBtn">Verify OTP</button>
+            <div class="loader" id="verifyLoader" style="display: none;"></div>
+            <div class="message" id="otpMessage"></div>
+
+            <button class="resend-btn" id="resendBtn" disabled>
+                Resend OTP
+            </button>
+
+            <a href="/login.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Login
+            </a>
+        </div>
     </div>
 
     <script>
-        async function verifyOtp() {
-            const otp = document.getElementById('otpInput').value;
-            const phone = localStorage.getItem('pendingPhone');
-            const userData = JSON.parse(localStorage.getItem('pendingUserData'));
+        // Get email from localStorage
+        const email = localStorage.getItem('pendingVerificationEmail');
+        
+        if (!email) {
+            window.location.href = '/login.html';
+        }
 
-            const res = await fetch('/api/otp/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone, otp })
+        document.getElementById('displayEmail').textContent = email;
+
+        // OTP Input Logic
+        const otpInputs = [
+            document.getElementById('otp1'),
+            document.getElementById('otp2'),
+            document.getElementById('otp3'),
+            document.getElementById('otp4'),
+            document.getElementById('otp5'),
+            document.getElementById('otp6')
+        ];
+
+        // Auto-focus next input
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                
+                // Only allow numbers
+                if (!/^\d$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+
+                // Add filled class
+                if (value) {
+                    e.target.classList.add('filled');
+                } else {
+                    e.target.classList.remove('filled');
+                }
+
+                // Auto-focus next input
+                if (value && index < 5) {
+                    otpInputs[index + 1].focus();
+                }
+
+                // Auto-verify when all digits are filled
+                if (index === 5 && value) {
+                    const otp = otpInputs.map(inp => inp.value).join('');
+                    if (otp.length === 6) {
+                        verifyOTP();
+                    }
+                }
             });
 
-            const data = await res.json();
+            // Backspace handling
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
 
-            if (res.ok) {
-                // Now register user
-                const regRes = await fetch('/api/auth/register', {
+            // Paste handling
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').trim();
+                
+                if (/^\d{6}$/.test(pastedData)) {
+                    pastedData.split('').forEach((char, i) => {
+                        if (otpInputs[i]) {
+                            otpInputs[i].value = char;
+                            otpInputs[i].classList.add('filled');
+                        }
+                    });
+                    otpInputs[5].focus();
+                    verifyOTP();
+                }
+            });
+        });
+
+        // Focus first input on load
+        otpInputs[0].focus();
+
+        // Timer countdown (10 minutes = 600 seconds)
+        let timeLeft = 600;
+        const timerDisplay = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.textContent = 'Expired';
+                timerDisplay.style.color = '#f87171';
+                resendBtn.disabled = false;
+            }
+        }, 1000);
+
+        // Enable resend after 30 seconds
+        setTimeout(() => {
+            if (timeLeft > 0) {
+                resendBtn.disabled = false;
+            }
+        }, 30000);
+
+        // Verify OTP Function
+        async function verifyOTP() {
+            const otp = otpInputs.map(inp => inp.value).join('');
+            
+            if (otp.length !== 6) {
+                showMessage('Please enter all 6 digits', 'error');
+                return;
+            }
+
+            const loader = document.getElementById('verifyLoader');
+            const btn = document.getElementById('verifyBtn');
+
+            loader.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...userData, phone })
+                    body: JSON.stringify({ email, otp })
                 });
 
-                if (regRes.ok) {
-                    window.location.href = '/';
+                const data = await res.json();
+                loader.style.display = 'none';
+                btn.disabled = false;
+
+                if (res.ok) {
+                    showMessage('✅ Email verified successfully! Redirecting to login...', 'success');
+                    
+                    // Clear localStorage
+                    localStorage.removeItem('pendingVerificationEmail');
+                    
+                    // Redirect to login
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || 'Invalid OTP. Please try again.', 'error');
+                    
+                    // Clear inputs on error
+                    otpInputs.forEach(inp => {
+                        inp.value = '';
+                        inp.classList.remove('filled');
+                    });
+                    otpInputs[0].focus();
                 }
-            } else {
-                document.getElementById('otpMessage').innerHTML = `<p style="color:red;">${data.message}</p>`;
+            } catch (err) {
+                loader.style.display = 'none';
+                btn.disabled = false;
+                showMessage('Network error. Please try again.', 'error');
+                console.error('Verify OTP error:', err);
             }
+        }
+
+        // Resend OTP Function
+        document.getElementById('resendBtn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/resend-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMessage('✅ New OTP sent to your email!', 'success');
+                    
+                    // Reset timer
+                    clearInterval(countdown);
+                    timeLeft = 600;
+                    timerDisplay.style.color = '#764ba2';
+                    
+                    const newCountdown = setInterval(() => {
+                        timeLeft--;
+                        const minutes = Math.floor(timeLeft / 60);
+                        const seconds = timeLeft % 60;
+                        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                        if (timeLeft <= 0) {
+                            clearInterval(newCountdown);
+                            timerDisplay.textContent = 'Expired';
+                            timerDisplay.style.color = '#f87171';
+                            btn.disabled = false;
+                        }
+                    }, 1000);
+
+                    // Clear OTP inputs
+                    otpInputs.forEach(inp => {
+                        inp.value = '';
+                        inp.classList.remove('filled');
+                    });
+                    otpInputs[0].focus();
+
+                    // Re-enable resend after 30 seconds
+                    setTimeout(() => {
+                        if (timeLeft > 0) {
+                            btn.disabled = false;
+                        }
+                    }, 30000);
+                } else {
+                    showMessage(data.message || 'Failed to resend OTP', 'error');
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                showMessage('Network error. Please try again.', 'error');
+                btn.disabled = false;
+                console.error('Resend OTP error:', err);
+            }
+        });
+
+        // Verify button click
+        document.getElementById('verifyBtn').addEventListener('click', verifyOTP);
+
+        // Message helper
+        function showMessage(text, type) {
+            const el = document.getElementById('otpMessage');
+            el.textContent = text;
+            el.className = `message ${type}`;
         }
     </script>
 </body>

@@ -5,14 +5,20 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  phone: { type: String, required: true, unique:true },
+  phone: { type: String, required: true, unique: true },
   isPremium: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
+  
+  // OTP fields
+  otp: { type: String },
+  otpExpire: { type: Date },
+  
+  // Password reset fields
   resetPasswordToken: { type: String },
   resetPasswordExpire: { type: Date },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' } // ← NAYA ADD
+  
+  role: { type: String, enum: ['user', 'admin'], default: 'user' }
 }, { timestamps: true });
-
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();

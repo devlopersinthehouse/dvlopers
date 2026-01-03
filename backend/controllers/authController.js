@@ -4,25 +4,45 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+// Helper function to generate 6-digit OTP
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 // Register
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
+  
   try {
+    // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    const { name, email, password, phone } = req.body; // ← phone add
-    const user = await User.create({ name, email, password, phone });
+
+    // Check if phone exists
+    const phoneExists = await User.findOne({ phone });
+    if (phoneExists) {
+      return res.status(400).json({ message: 'Phone number already registered' });
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    // Create user (not verified yet)
+    const user = await User.create({ 
+      name, 
+      email, 
+      password, 
+      phone,
+      otp,
+      otpExpire,
+      isVerified: false
+    });
 
     if (user) {
-      // Verification Token (1 day expiry)
-      const verificationToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-      // Verification Link
-      const verificationLink = `http://localhost:5000/api/auth/verify-email?token=${verificationToken}`;
-
-      // Send Verification Email
+      // Send OTP Email
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -34,23 +54,27 @@ exports.register = async (req, res) => {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
-        subject: 'Verify Your Email - MyApp',
+        subject: 'Email Verification OTP - MyApp',
         html: `
-          <h2>Welcome ${name}!</h2>
-          <p>Thank you for registering. Please verify your email to activate your account:</p>
-          <p><a href="${verificationLink}" style="background:#764ba2;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Verify Email</a></p>
-          <p>Or copy this link: ${verificationLink}</p>
-          <p>This link expires in 24 hours.</p>
-          <hr>
-          <small>MyApp Team</small>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #764ba2;">Welcome ${name}!</h2>
+            <p>Thank you for registering with MyApp. Please use the following OTP to verify your email:</p>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 10px; margin: 20px 0;">
+              <h1 style="margin: 0; font-size: 36px; letter-spacing: 5px;">${otp}</h1>
+            </div>
+            <p><strong>This OTP is valid for 10 minutes.</strong></p>
+            <p>If you didn't request this, please ignore this email.</p>
+            <hr>
+            <small style="color: #888;">MyApp Team</small>
+          </div>
         `
       });
 
       res.status(201).json({
-        _id: user._id,
-        name: user.name,
+        success: true,
+        message: 'Registration successful! Please check your email for OTP verification code.',
         email: user.email,
-        message: 'Registration successful! Please check your email to verify your account before logging in.'
+        userId: user._id
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -58,6 +82,115 @@ exports.register = async (req, res) => {
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ message: err.message || 'Server error' });
+  }
+};
+
+// Verify OTP
+exports.verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ message: 'Email and OTP are required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified. Please login.' });
+    }
+
+    // Check if OTP expired
+    if (!user.otpExpire || Date.now() > user.otpExpire) {
+      return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
+    }
+
+    // Check if OTP matches
+    if (user.otp !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
+    }
+
+    // Verify user
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
+
+    res.json({ 
+      success: true,
+      message: 'Email verified successfully! You can now login.' 
+    });
+  } catch (err) {
+    console.error('Verify OTP error:', err);
+    res.status(500).json({ message: 'Server error during verification' });
+  }
+};
+
+// Resend OTP
+exports.resendOTP = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified. Please login.' });
+    }
+
+    // Generate new OTP
+    const otp = generateOTP();
+    const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    user.otp = otp;
+    user.otpExpire = otpExpire;
+    await user.save();
+
+    // Send OTP Email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Email Verification OTP (Resent) - MyApp',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #764ba2;">Hello ${user.name}!</h2>
+          <p>You requested a new OTP. Please use the following code to verify your email:</p>
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 10px; margin: 20px 0;">
+            <h1 style="margin: 0; font-size: 36px; letter-spacing: 5px;">${otp}</h1>
+          </div>
+          <p><strong>This OTP is valid for 10 minutes.</strong></p>
+          <hr>
+          <small style="color: #888;">MyApp Team</small>
+        </div>
+      `
+    });
+
+    res.json({ 
+      success: true,
+      message: 'New OTP sent to your email. Please check your inbox.' 
+    });
+  } catch (err) {
+    console.error('Resend OTP error:', err);
+    res.status(500).json({ message: 'Error sending OTP. Please try again.' });
   }
 };
 
@@ -73,7 +206,11 @@ exports.login = async (req, res) => {
 
     // Verification Check
     if (!user.isVerified) {
-      return res.status(401).json({ message: 'Please verify your email first. Check your inbox (and spam folder) for the verification link.' });
+      return res.status(401).json({ 
+        message: 'Please verify your email first. Check your inbox for the OTP.',
+        needsVerification: true,
+        email: user.email
+      });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -218,7 +355,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// NEW: Update Profile
+// Update Profile
 exports.updateProfile = async (req, res) => {
   try {
     const { name } = req.body;
@@ -247,7 +384,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// NEW: Change Password
+// Change Password
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -282,7 +419,7 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-// NEW: Delete Account
+// Delete Account
 exports.deleteAccount = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

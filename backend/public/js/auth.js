@@ -148,13 +148,14 @@ if (phoneInput) {
 }
 
 /* =========================
-   LOGIN HANDLER
+   LOGIN HANDLER - WITH API HELPER
 ========================= */
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     const loader = document.getElementById('loginLoader');
     const btn = document.getElementById('loginBtn');
+    const messageEl = document.getElementById('loginMessage');
 
     // Validation
     if (!email || !password) {
@@ -167,12 +168,18 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     clearMessages();
 
     try {
-        const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+        // Use API helper with progress updates
+        const res = await window.api.post('/api/auth/login', 
+            { email, password },
+            {
+                timeout: 60000, // 60 seconds for first request
+                retries: 2,
+                onProgress: (msg) => {
+                    messageEl.textContent = msg;
+                    messageEl.className = 'message info';
+                }
+            }
+        );
 
         const data = await res.json();
         loader.style.display = 'none';
@@ -186,8 +193,18 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         } else {
             let msg = data.message || 'Invalid credentials';
             
+            // Check if user needs OTP verification
+            if (data.needsVerification && data.email) {
+                showMessage('loginMessage', 'Email not verified. Redirecting to OTP verification...', 'error');
+                localStorage.setItem('pendingVerificationEmail', data.email);
+                setTimeout(() => {
+                    window.location.href = '/verify-otp.html';
+                }, 2000);
+                return;
+            }
+            
             if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('verification')) {
-                msg = 'Please verify your email first. Check your inbox (and spam folder) for the verification link.';
+                msg += ' Check your email for the OTP.';
             }
             
             showMessage('loginMessage', msg, 'error');
@@ -195,13 +212,23 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     } catch (err) {
         loader.style.display = 'none';
         btn.disabled = false;
-        showMessage('loginMessage', 'Network error. Please try again.', 'error');
+        
+        // User-friendly error messages
+        let errorMsg = 'Network error. Please try again.';
+        
+        if (err.message.includes('timeout')) {
+            errorMsg = '⏰ Server is taking too long to respond. Please try again in a minute.';
+        } else if (err.message.includes('not responding')) {
+            errorMsg = '❌ Cannot connect to server. Please try again later.';
+        }
+        
+        showMessage('loginMessage', errorMsg, 'error');
         console.error('Login error:', err);
     }
 });
 
 /* =========================
-   REGISTER HANDLER – WITH REQUIRED PHONE VALIDATION
+   REGISTER HANDLER – WITH API HELPER
 ========================= */
 document.getElementById('registerBtn').addEventListener('click', async () => {
     const name = document.getElementById('regName').value.trim();
@@ -210,6 +237,7 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
     const phone = document.getElementById('regPhone')?.value.trim() || '';
     const loader = document.getElementById('regLoader');
     const btn = document.getElementById('registerBtn');
+    const messageEl = document.getElementById('registerMessage');
 
     // Validation
     if (!name || !email || !password || !phone) {
@@ -233,12 +261,17 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
     clearMessages();
 
     try {
-        const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password, phone }) // ← phone bheja
-        });
+        const res = await window.api.post('/api/auth/register',
+            { name, email, password, phone },
+            {
+                timeout: 60000,
+                retries: 2,
+                onProgress: (msg) => {
+                    messageEl.textContent = msg;
+                    messageEl.className = 'message info';
+                }
+            }
+        );
 
         const data = await res.json();
         loader.style.display = 'none';
@@ -246,22 +279,28 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
 
         if (res.ok) {
             showMessage('registerMessage', 
-                'Account created successfully! Please check your email for the verification link. You can login after verification.', 
+                '✅ Account created! OTP sent to your email. Redirecting...', 
                 'success'
             );
             
-            // Clear form
-            document.getElementById('regName').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regPhone').value = '';
+            localStorage.setItem('pendingVerificationEmail', email);
+            
+            setTimeout(() => {
+                window.location.href = '/verify-otp.html';
+            }, 2000);
         } else {
             showMessage('registerMessage', data.message || 'Registration failed. Try again.', 'error');
         }
     } catch (err) {
         loader.style.display = 'none';
         btn.disabled = false;
-        showMessage('registerMessage', 'Network error. Please try again.', 'error');
+        
+        let errorMsg = 'Network error. Please try again.';
+        if (err.message.includes('timeout')) {
+            errorMsg = '⏰ Server is taking too long. Please try again in a minute.';
+        }
+        
+        showMessage('registerMessage', errorMsg, 'error');
         console.error('Registration error:', err);
     }
 });
